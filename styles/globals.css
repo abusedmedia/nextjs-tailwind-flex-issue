@@ -14,3 +14,18 @@ a {
 * {
   box-sizing: border-box;
 }
+
+
+.wrapper{
+  display: flex;
+  flex-direction: column;
+}
+.child{
+  flex: 1;
+}
+
+@media (min-width: 768px){
+  .wrapper{
+    flex-direction: row;
+  }
+}
