@@ -1,34 +1,57 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Hello,
 
-## Getting Started
+I've came across a weird behavior that I try to describe alongside the sample code I put in a dedicated repository.
 
-First, run the development server:
+The issue happens using Tailwind (latest version) with Next.js (latest version) only when using the `next export` version of the build with a **cold run** (no cache involved).
 
-```bash
-npm run dev
-# or
-yarn dev
+I have a simple component that reads and print its width using `getComputedStyle`. 
+That component is used in this chunk in the main App:
+
+```html
+<div className='flex flex-col md:flex-row'>
+  <div className='flex-1'>
+    <LogWidth />
+  </div>
+  <div className='flex-1'>
+    <LogWidth />
+  </div>
+</div>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Running `next dev` LogWidth shows the correct width, both components show half of the page width.
+But running `next start` after exporting the static version with `next build && next export`, the width value is wrong and correspond to the full page width in Chrome, and the value is set to `auto` in Safari/Firefox.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+Using the same component and application but replacing the Tailwind class:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+```html
+<div className='wrapper'>
+  <div className='child'>
+    <LogWidth />
+  </div>
+  <div className='child'>
+    <LogWidth />
+  </div>
+</div>
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+ using with a pure equivalent CSS code:
 
-## Learn More
+```css
+.wrapper{
+  display: flex;
+  flex-direction: column;
+}
+.child{
+  flex: 1;
+}
 
-To learn more about Next.js, take a look at the following resources:
+@media (min-width: 768px){
+  .wrapper{
+    flex-direction: row;
+  }
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+LogWidth component shows the correct value both in the `dev` and `export` version and in every browser vendors.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+I've set up a [sample app repository](https://github.com/abusedmedia/nextjs-tailwind-flex-issue) to show the above behaviour. Just clone it, run `npm run dev` to see the right values, `npm run export` and `npm start` to see the wrong one.
